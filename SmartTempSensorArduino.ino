@@ -14,7 +14,7 @@ int dir1 = 12;
 int dir2 = 13;
 int mSpeed = 90;
 float temp_threshold = 76.0;
-
+bool forwardDirection = true;
 void setup() {
   Serial.begin(9600);
   HT.begin();
@@ -57,6 +57,32 @@ void loop() {
     else if (command == "disable_fan") {
       analogWrite(speedPin, 0);
       Serial.println("Fan disabled");
+    }
+    else if (command == "turn_on_green")
+    {
+      digitalWrite(green_led, HIGH);
+      digitalWrite(red_led, LOW);
+    }
+    else if (command == "turn_on_red")
+    {
+      digitalWrite(green_led, LOW);
+      digitalWrite(red_led, HIGH);
+    }
+    else if (command == "change_fan_dir") {
+      forwardDirection = !forwardDirection;   // flip the stored state
+
+      if (forwardDirection) 
+      {
+        digitalWrite(dir1, LOW);
+        digitalWrite(dir2, HIGH);
+        Serial.println("Fan direction: forward");
+      } 
+      else 
+      {
+        digitalWrite(dir1, HIGH);
+        digitalWrite(dir2, LOW);
+        Serial.println("Fan direction: reverse");
+      }
     }
     else {
       Serial.println("ERROR: Unknown command");
