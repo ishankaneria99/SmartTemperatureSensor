@@ -34,8 +34,26 @@ def turn_on_green(): return send_command("turn_on_green")
 def turn_on_red(): return send_command("turn_on_red")
 def change_fan_dir(): return send_command("change_fan_dir")
 
-st.title("🌡️ Smart Temp Sensor Agent")
+st.title("🌡️ Room Temp Sensor")
 
+st.subheader("Common Features")
+col1, col2, col3 = st.columns(3)
+with col1:
+    if st.button("🔄 Refresh sensor reading"):
+        latest_temp = read_temperature()
+        st.session_state.latest_temp = latest_temp
+with col2:
+    if st.button("✅Enable Fan"):
+        greenLedOn = enable_fan()
+with col3:
+    if st.button("❌Disable Fan"):
+        redLedOn = disable_fan()
+        
+st.subheader("DATA")
+col4, col5 = st.columns(2)
+if "latest_temp" in st.session_state:
+    col4.metric("Temperature", f"{st.session_state.latest_temp}°F")
+    
 # Display past messages
 for msg in st.session_state.messages:
     if msg["role"] in ("user", "assistant") and isinstance(msg["content"], str):
@@ -43,7 +61,7 @@ for msg in st.session_state.messages:
             st.write(msg["content"])
 
 # Chat input box
-user_input = st.chat_input("Ask about the temperature or control the fan...")
+user_input = st.chat_input("Enter your query here...")
 
 if user_input:
     st.session_state.messages.append({"role": "user", "content": user_input})
@@ -63,7 +81,8 @@ if user_input:
         if block.type == "tool_use":
             if block.name == "read_temperature":
                 result = read_temperature()
-                print(f"[DEBUG] Raw result: {repr(result)}")
+                st.session_state.latest_temp = result
+                st.toast(f"🌡️ Temperature: {result}°F", icon="🌡️")
             elif block.name == "enable_fan":
                 result = enable_fan()
             elif block.name == "disable_fan":
@@ -94,7 +113,4 @@ if user_input:
 
     with st.chat_message("assistant"):
         st.write(answer)
-        print("Claude:", final_response.content[0].text)
-        messages.append({"role": "assistant", "content": final_response.content})
-    else:
-        print("Claude:", response.content[0].text)
+    st.rerun()
