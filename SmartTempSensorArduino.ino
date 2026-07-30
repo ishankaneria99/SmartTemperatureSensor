@@ -7,19 +7,22 @@ float tempC;
 float tempF;
 int setTime = 500;
 int dt = 1000;
-int green_led = 5;
-int red_led = 6;
+int redPin = 5;
+int greenPin = 6;
+int bluePin = 11;
 int speedPin = 9;
 int dir1 = 12;
 int dir2 = 13;
 int mSpeed = 90;
 float temp_threshold = 76.0;
 bool forwardDirection = true;
+
 void setup() {
   Serial.begin(9600);
   HT.begin();
-  pinMode(green_led, OUTPUT);
-  pinMode(red_led, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(redPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
   pinMode(speedPin, OUTPUT);
   pinMode(dir1, OUTPUT);
   pinMode(dir2, OUTPUT);
@@ -29,47 +32,73 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available() > 0) {
-    String command = Serial.readStringUntil('\n');
-    command.trim();
+  if (Serial.available() > 0) {                    // ← restored
+    String command = Serial.readStringUntil('\n'); // ← restored
+    command.trim();                                 // ← restored
 
-    if (command == "read_temp") {
+    if (command == "read_temp") 
+    {
       humidity = HT.readHumidity();
       tempC = HT.readTemperature();
       tempF = HT.readTemperature(true);
 
-      if (tempF > temp_threshold) {
-        digitalWrite(green_led, LOW);
-        digitalWrite(red_led, HIGH);
-        analogWrite(speedPin, mSpeed);
-      } else {
-        digitalWrite(green_led, HIGH);
-        digitalWrite(red_led, LOW);
-        analogWrite(speedPin, 0);
+      if (isnan(tempF) || isnan(humidity)) 
+      {
+        Serial.println("ERROR: Sensor read failed");
       }
-
-      Serial.println(tempF, 2);
+      else 
+      {
+        if (tempF >= temp_threshold + 5) 
+        {
+          digitalWrite(greenPin, LOW);
+          digitalWrite(redPin, HIGH);
+          digitalWrite(bluePin, LOW);
+          analogWrite(speedPin, 255);
+        } 
+        else if (tempF >= temp_threshold)
+        {
+          digitalWrite(greenPin, HIGH);
+          digitalWrite(redPin, HIGH);
+          digitalWrite(bluePin, LOW);
+          analogWrite(speedPin, mSpeed);
+        }
+        else
+        {
+          digitalWrite(greenPin, HIGH);
+          digitalWrite(redPin, LOW);
+          digitalWrite(bluePin, LOW);
+          analogWrite(speedPin, 0);
+        }
+        Serial.println(tempF, 2);
+      }
     }
-    else if (command == "enable_fan") {
+    else if (command == "enable_fan") 
+    {
       analogWrite(speedPin, 255);
       Serial.println("Fan enabled");
     }
-    else if (command == "disable_fan") {
+    else if (command == "disable_fan") 
+    {
       analogWrite(speedPin, 0);
       Serial.println("Fan disabled");
     }
     else if (command == "turn_on_green")
     {
-      digitalWrite(green_led, HIGH);
-      digitalWrite(red_led, LOW);
+      digitalWrite(greenPin, HIGH);
+      digitalWrite(redPin, LOW);
+      digitalWrite(bluePin, LOW);
+      Serial.println("Green LED on");
     }
     else if (command == "turn_on_red")
     {
-      digitalWrite(green_led, LOW);
-      digitalWrite(red_led, HIGH);
+      digitalWrite(greenPin, LOW);
+      digitalWrite(redPin, HIGH);
+      digitalWrite(bluePin, LOW);
+      Serial.println("Red LED on");
     }
-    else if (command == "change_fan_dir") {
-      forwardDirection = !forwardDirection;   // flip the stored state
+    else if (command == "change_fan_dir") 
+    {
+      forwardDirection = !forwardDirection;
 
       if (forwardDirection) 
       {
@@ -84,7 +113,8 @@ void loop() {
         Serial.println("Fan direction: reverse");
       }
     }
-    else {
+    else 
+    {
       Serial.println("ERROR: Unknown command");
     }
   }
