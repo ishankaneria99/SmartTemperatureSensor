@@ -5,9 +5,11 @@ import anthropic
 
 # --- Setup (runs once) ---
 if "client" not in st.session_state:
-    st.session_state.client = anthropic.Anthropic(api_key="bleh")
-    st.session_state.arduino = serial.Serial('COM3', 9600, timeout=3)
-    time.sleep(2)
+    st.session_state.client = anthropic.Anthropic(api_key="2")
+    st.session_state.arduino = serial.Serial('COM4', 9600, timeout=3)
+    time.sleep(5)
+
+    st.session_state.arduino.reset_input_buffer()
     st.session_state.messages = []
 
 client = st.session_state.client
@@ -23,9 +25,13 @@ tools = [
 ]
 
 def send_command(cmd):
-    print(f"[DEBUG] Sending command: {repr(cmd)}")   
+    print(f"[DEBUG] Sending command: {repr(cmd)}")
+    arduino.reset_input_buffer()  # clear any stale data before sending
     arduino.write((cmd + '\n').encode())
-    return arduino.readline().decode().strip()
+    raw = arduino.readline()
+    result = raw.decode('utf-8', errors='ignore').strip()
+    print(f"[DEBUG] Raw result: {repr(result)}")
+    return result
 
 def read_temperature(): return send_command("read_temp")
 def enable_fan(): return send_command("enable_fan")
