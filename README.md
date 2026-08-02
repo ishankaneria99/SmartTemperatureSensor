@@ -7,4 +7,6 @@ Referring to "image.jpeg" the wiring while "rudimentary" shows 2 LEDs that light
 
 7/28/26 -> Utilized streamlit to create a cleaner layout to send commands to the agent
 
-7/30 -> Improved layout of streamlit app and replaced Arduino with ESP32
+7/30/26 -> Improved layout of streamlit app
+
+8/2/26 -> Replaced Arduino with ESP32 and included KiCad Gerber file of the circuit on a PCB (did not include fan). 
