@@ -1,18 +1,18 @@
 #include "DHT.h"
-#define Type DHT11
-int sensePin = 3;
+#define Type DHT22
+int sensePin = 4;
 DHT HT(sensePin, Type);
 float humidity;
 float tempC;
 float tempF;
 int setTime = 500;
 int dt = 1000;
-int redPin = 5;
-int greenPin = 6;
-int bluePin = 11;
-int speedPin = 9;
-int dir1 = 12;
-int dir2 = 13;
+int redPin = 25;
+int greenPin = 26;
+int bluePin = 27;
+int speedPin = 32;
+int dir1 = 33;
+int dir2 = 14;
 int mSpeed = 90;
 float temp_threshold = 76.0;
 bool forwardDirection = true;
